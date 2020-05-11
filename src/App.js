@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import User from './User.js';
 import Host from './Host';
 
@@ -14,23 +14,24 @@ function App() {
     const onSuccess = response => setCredentials({status:true, credentials:response});
     const onFailure = response => setCredentials({status:false, credentials:false});    
     //"streaming,user-read-email,user-read-private,read-playback-state"
+
     if(!credentials.status)
         return (
             <>
             <React.StrictMode>
                 <SpotifyLogin clientId={'eff635f26c1c4116bc9cecca8ea22d17'}
-                redirectUri={'http://localhost:3000/'}
+                redirectUri={'https://felipetrost.github.io/spotifySyncPlayback/'}
                 scope={["streaming", "user-read-email", "user-read-private", "user-read-playback-state", "user-modify-playback-state"]}
                 onSuccess={onSuccess}
                 onFailure={onFailure}/>
             </React.StrictMode>
 
             <br/>
-
-            <input type="radio" id="host" name="role" value="host" checked={isHost} onClick={()=> setIsHost(true) } />
+            <h4>Modalidad:</h4>
+            <input type="radio" id="host" name="role" value="host" checked={isHost} onChange={e=> setIsHost(e.target.checked)} />
             <label for="host">Host</label><br/>
 
-            <input type="radio" id="user" name="role" value="user" checked={!isHost} onClick={()=> setIsHost(false) }  defaultChecked/>
+            <input type="radio" id="user" name="role" value="user" checked={!isHost} onChange={e=> setIsHost(!e.target.checked)} />
             <label for="user">User</label><br/>
 
             {credentials.credentials === false && (

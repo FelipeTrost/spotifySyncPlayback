@@ -44,7 +44,7 @@ function User(props) {
         //     path: '/myapp'
         // });
         const peer = new Peer();
-        
+
         //Called when we connect to broker server
         peer.on('open', id =>{
             console.log('connected');
@@ -95,19 +95,19 @@ function User(props) {
 
                 setHostSong(data.song);
 
-                if(user.players.length == 0) return null;
+                if(user.players.length === 0) return null;
 
                 const {item, is_playing, progress_ms, device } = await spotify.getMyCurrentPlaybackState()
                 
-                if(item.uri === data.song.item.uri && device.id == user.players[user.sellectedPlayer]){
+                if(item.uri === data.song.item.uri && device.id === user.players[user.sellectedPlayer]){
                     //if Songs are more than 3 seconds appart we seek to the hosts position
                     if(Math.abs(data.song.progress_ms - progress_ms) > 3*1000)
                         spotify.seek(data.song.progress_ms);
 
-                    if(data.song.is_playing != is_playing && is_playing)
+                    if(data.song.is_playing !== is_playing && is_playing)
                         spotify.pause(user.players[user.sellectedPlayer].id);
                     
-                    if(data.song.is_playing != is_playing && !is_playing)
+                    if(data.song.is_playing !== is_playing && !is_playing)
                         spotify.play({  device_id: user.players[user.sellectedPlayer]  })
 
                     return null;
@@ -153,7 +153,7 @@ function User(props) {
         )}
 
         <h3>Players <button onClick={getSpotifyDevices} >refresh</button>  </h3>
-        {userInfo.players.length == 0 && (<h4>No connected devices {userInfo.sellectedPlayer} </h4>)}
+        {userInfo.players.length === 0 && (<h4>No connected devices {userInfo.sellectedPlayer} </h4>)}
         <ul>
             {userInfo.players.map(player => (
                 <li key={player.id}> {player.name} type:{player.type} </li>

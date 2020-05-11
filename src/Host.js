@@ -17,9 +17,6 @@ function User(props) {
         return { ...list, [client.peer]:client };
     });
 
-    const [host, setHost] = useState(false);
-
-
     useEffect(() => {
         const s = new Spotify();
         s.setAccessToken(props.credentials.access_token);
@@ -101,12 +98,6 @@ function User(props) {
                 <li key={id}> {id} </li>
             ))}
         </ul>
-
-        <button onClick={
-            () => Object.keys(connectedClients).forEach(id => connectedClients[id].send({song:'spotify:track:7khLT5h97FlHyYk79QRHNn'} ) )
-        }>
-            sendSong
-        </button>
     </div>
     );
     else

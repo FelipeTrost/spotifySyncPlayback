@@ -86,7 +86,10 @@ const User = (props) => {
             } )
 
             //Connect to broker server
-            const peer = new Peer();
+            const peer = new Peer({
+                host: "9000-ac62c345-f733-4f21-9741-dc1e6d1fdc2d.ws-us02.gitpod.io",
+                secure:true,
+            });
            
             //Called when we connect to broker server
             peer.on('open', id =>{

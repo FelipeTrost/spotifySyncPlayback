@@ -1,9 +1,40 @@
 import React, {useEffect, useState, useRef} from 'react';
 import Peer from 'peerjs';
 import Spotify from 'spotify-web-api-js';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import IconButton from '@material-ui/core/IconButton';
+import Typography from '@material-ui/core/Typography';
+import { List, ListItem, AppBar, Toolbar, Grow } from '@material-ui/core';
+import {Skeleton} from '@material-ui/lab'
+import DnsIcon from '@material-ui/icons/Dns';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
 
+const useStyles = makeStyles((theme) => ({
+    card:{
+        width: '90%',
+        maxWidth: 600,
+    },
+    header:{
+        backgroundColor: "#1DB954"
+    },
+}));
+
+const copyToClipboard = str => {
+    const el = document.createElement('textarea');
+    el.value = str;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+  };
 
 function User(props) {
+    //MATERIAL UI STYLE 
+    const classes = useStyles();
+    const theme = useTheme();
+
     const [spotify,setSpotify] = useState(false);
 
     const [connection, setConnection] =useState(false);
@@ -22,13 +53,6 @@ function User(props) {
         s.setAccessToken(props.credentials.access_token);
         setSpotify(s);
 
-        //Get all of the users devices
-        s.getMyDevices()
-        .then(devices => setUserInfo(current => {
-            return {...current, players: devices.devices}
-        }))
-       .catch(e => console.log("Hubo un error:", e))
-
         //Get users sportify information
         s.getMe()
         .then(d => setUserInfo( val =>{
@@ -39,11 +63,6 @@ function User(props) {
         } ));
 
         //Connect to broker server
-        // const peer = new Peer({
-        //     host: 'localhost',
-        //     port: 9000,
-        //     path: '/myapp'
-        // });
         const peer = new Peer();
 
         //Called when we connect to broker server
@@ -66,7 +85,6 @@ function User(props) {
                     return newClients;
                 })
             });
-
             addClient(conn);
         } );
 
@@ -74,9 +92,17 @@ function User(props) {
 
         const interval = setInterval( async () => {
 
+            //If there arent users connected we dont need to do this
+            if(Object.keys(clientsRef.current).length < 1)
+                return null
+                
             const data = await s.getMyCurrentPlaybackState()
             if(!data) return null;
-            Object.keys(clientsRef.current).forEach(id => clientsRef.current[id].send({song: data}) )     
+            
+            Object.keys(clientsRef.current).forEach(id => {
+                console.log(clientsRef.current[id].send )
+                clientsRef.current[id].send({song: data}) 
+            })     
 
         }, 1000);
 
@@ -84,24 +110,75 @@ function User(props) {
     }, []);
 
 
-    if(userInfo.spotify && spotify && userInfo.players)
+    if(userInfo.spotify && spotify && userInfo.players && userInfo.peerId)
     return (
     <div className="App">
-
-        <h3>Username: {userInfo.spotify.display_name}</h3>
-        <h3>Host id: {userInfo.peerId}</h3>
+        <Grow in={true}>
+            <AppBar position="static" className={classes.header}> 
+                <Toolbar variant="dense">
+                    <Typography variant="h6" className={classes.title}>
+                        {userInfo.spotify.display_name}
+                    </Typography>
+                </Toolbar>
+            </AppBar>
+        </Grow>
         <br/>
+        <Grow in={true}>
+        <Card raised={true} className={classes.card}>
+            <CardContent>
+                <Typography variant="h6" component="h6">
+                    <DnsIcon size="large"/>
+                    Host id
+                </Typography>
+                <Typography>
+                    {userInfo.peerId} 
+                    <IconButton onClick={() => copyToClipboard(userInfo.peerId)}>
+                        <FileCopyIcon/>
+                    </IconButton>
+                </Typography>
+            </CardContent>
+        </Card>
+        </Grow>
+        <br/>
+        <Grow in={true}>
+        <Card raised={true} className={classes.card}>
+            <CardContent>
+                <Typography variant="h6" component="h6">
+                    Connected Clients:
+                </Typography>
 
-        <h4>Connected Clients:</h4>
-        <ul>
-            {Object.keys(connectedClients).map(id =>  (
-                <li key={id}> {id} </li>
-            ))}
-        </ul>
+                <List maxWidth='md'>
+                    {Object.keys(connectedClients).map(id =>  (
+                        <ListItem key={id} > 
+                            <Typography> {id}</Typography>
+                        </ListItem>
+                    ))}
+                    {userInfo.players.map((player, index) => (
+                        <ListItem button
+                        key={player.id} 
+                        className={userInfo.sellectedPlayer == index? classes.selected:""} 
+                        onClick={()=>setUserInfo(current => {
+                            return {...current, sellectedPlayer:index}
+                        })}
+                        > 
+                        <Typography> {player.name} type:{player.type}</Typography>
+                        </ListItem>
+                    ))}
+                </List>
+            </CardContent>
+        </Card>
+        </Grow>
+
     </div>
     );
     else
-    return (<p>...Loading</p>);
+    return (
+        <>
+        <Skeleton variant="text" width={410} />
+        <Skeleton variant="text" width={410} />
+        <Skeleton variant="rect" width={410} height={118} />
+        </>
+    );
 }
 
 export default User;

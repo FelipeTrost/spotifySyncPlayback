@@ -1,25 +1,15 @@
-import React, {useEffect, useState, useRef} from 'react';
-import Peer from 'peerjs';
-import Spotify from 'spotify-web-api-js';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
+import React, {useEffect, useState} from 'react';
+import hostPeer from './utils/host.js';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
-import { List, ListItem, AppBar, Toolbar, Grow } from '@material-ui/core';
-import {Skeleton} from '@material-ui/lab'
+import { List, ListItem} from '@material-ui/core';
+import {Alert} from '@material-ui/lab'
 import DnsIcon from '@material-ui/icons/Dns';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
-
-const useStyles = makeStyles((theme) => ({
-    card:{
-        width: '90%',
-        maxWidth: 600,
-    },
-    header:{
-        backgroundColor: "#1DB954"
-    },
-}));
+import Loading from './components/Loading.js';
+import BasicCard from './components/BasicCard.js';
+import Header from './components/Header.js';
+import useStyles from './styles/styles.js'
 
 const copyToClipboard = str => {
     const el = document.createElement('textarea');
@@ -28,160 +18,80 @@ const copyToClipboard = str => {
     el.select();
     document.execCommand('copy');
     document.body.removeChild(el);
-  };
+};
 
-function User(props) {
+const Host = ({customSpotify})=> {
+    //For error connecting to broker
+    const [errorBroker, setErrorBroker] = useState(false)
+
     //MATERIAL UI STYLE 
     const classes = useStyles();
-    const theme = useTheme();
-
-    const [spotify,setSpotify] = useState(false);
 
     const [connection, setConnection] =useState(false);
     const [userInfo, setUserInfo] =useState({peerId:null, spotify:null, players:[]});
     
     const [connectedClients, setConnectedClients] = useState({});
-    const clientsRef = useRef(connectedClients);
-    clientsRef.current = connectedClients;
-    const addClient = client => setConnectedClients(list => {
-        console.log("adding",client);
-        return { ...list, [client.peer]:client };
-    });
 
     useEffect(() => {
-        const s = new Spotify();
-        s.setAccessToken(props.credentials.access_token);
-        setSpotify(s);
+        const { spotify, user} = customSpotify
 
-        //Get users sportify information
-        s.getMe()
-        .then(d => setUserInfo( val =>{
-            return {...val, spotify : d}
-        } ))
-        .catch(d => setUserInfo( val =>{
-            return {...val, spotify: {display_name:'Not found'} }
-        } ));
+        setUserInfo( val => ({...val, spotify:user}))
 
-        //Connect to broker server
-        const peer = new Peer({
-            host: "9000-ac62c345-f733-4f21-9741-dc1e6d1fdc2d.ws-us02.gitpod.io",
-            secure:true,
-        });
-
-        //Called when we connect to broker server
-        peer.on('open', id =>{
-            console.log('connected');
-            setUserInfo(val =>{
-                return {...val, peerId:id}
-            });
-        });
-
-        //Save incomming connections
-        peer.on('connection', conn => {
-            console.log("Peer connected:", conn.peer);
-
-            conn.on('close', () => {
-                console.log("peer disconnected");
-
-                setConnectedClients(clients =>{
-                    const {[conn.peer]: removedState, ...newClients} = clients;
-                    return newClients;
-                })
-            });
-            addClient(conn);
-        } );
-
-        setConnection(peer);
+        const emit = hostPeer(
+            id => setConnection(id),
+            error => setErrorBroker(error),
+            clients => setConnectedClients(clients)
+        )
 
         const interval = setInterval( async () => {
-
-            //If there arent users connected we dont need to do this
-            if(Object.keys(clientsRef.current).length < 1)
-                return null
-                
-            const data = await s.getMyCurrentPlaybackState()
+            const data = await spotify.getMyCurrentPlaybackState()
             if(!data) return null;
             
-            Object.keys(clientsRef.current).forEach(id => {
-                console.log(clientsRef.current[id].send )
-                clientsRef.current[id].send({song: data}) 
-            })     
+            emit({song: data})   
 
         }, 1000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [customSpotify]);
 
+    
+    if(errorBroker)
+    return <Alert severity="error">Server down, please contact the administrator (Trost xd) and try again later.</Alert>
 
-    if(userInfo.spotify && spotify && userInfo.players && userInfo.peerId)
+    if(connection && userInfo.spotify)
     return (
     <div className="App">
-        <Grow in={true}>
-            <AppBar position="static" className={classes.header}> 
-                <Toolbar variant="dense">
-                    <Typography variant="h6" className={classes.title}>
-                        {userInfo.spotify.display_name}
-                    </Typography>
-                </Toolbar>
-            </AppBar>
-        </Grow>
-        <br/>
-        <Grow in={true}>
-        <Card raised={true} className={classes.card}>
-            <CardContent>
-                <Typography variant="h6" component="h6">
-                    <DnsIcon size="large"/>
-                    Host id
-                </Typography>
-                <Typography>
-                    {userInfo.peerId} 
-                    <IconButton onClick={() => copyToClipboard(userInfo.peerId)}>
-                        <FileCopyIcon/>
-                    </IconButton>
-                </Typography>
-            </CardContent>
-        </Card>
-        </Grow>
-        <br/>
-        <Grow in={true}>
-        <Card raised={true} className={classes.card}>
-            <CardContent>
-                <Typography variant="h6" component="h6">
-                    Connected Clients:
-                </Typography>
+        <BasicCard classes={classes}>
+            <Typography variant="h6" component="h6">
+                <DnsIcon size="large"/>
+                Host id
+            </Typography>
+            <Typography>
+                {connection} 
+                <IconButton onClick={() => copyToClipboard(connection)}>
+                    <FileCopyIcon/>
+                </IconButton>
+            </Typography>
+        </BasicCard>
+                
+        <BasicCard classes={classes}>
+            <Typography variant="h6" component="h6">
+                Connected Clients:
+            </Typography>
 
-                <List maxWidth='md'>
-                    {Object.keys(connectedClients).map(id =>  (
-                        <ListItem key={id} > 
-                            <Typography> {id}</Typography>
-                        </ListItem>
-                    ))}
-                    {userInfo.players.map((player, index) => (
-                        <ListItem button
-                        key={player.id} 
-                        className={userInfo.sellectedPlayer == index? classes.selected:""} 
-                        onClick={()=>setUserInfo(current => {
-                            return {...current, sellectedPlayer:index}
-                        })}
-                        > 
-                        <Typography> {player.name} type:{player.type}</Typography>
-                        </ListItem>
-                    ))}
-                </List>
-            </CardContent>
-        </Card>
-        </Grow>
+            <List>
+                {Object.keys(connectedClients).map(id =>  (
+                    <ListItem key={id} > 
+                        <Typography> {id}</Typography>
+                    </ListItem>
+                ))}
+            </List>
+        </BasicCard>
 
     </div>
     );
     else
-    return (
-        <>
-        <Skeleton variant="text" width={410} />
-        <Skeleton variant="text" width={410} />
-        <Skeleton variant="rect" width={410} height={118} />
-        </>
-    );
+    return <Loading />;
 }
 
-export default User;
+export default Host;

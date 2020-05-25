@@ -1,8 +1,8 @@
 import CustomPeer from "./peer.js"
 
 //Closure holding the peer object
-const userPeer = (setId, error, hostStatus, recieveData) => {
-    const peer = CustomPeer(setId, error)
+const userPeer = (setId, error, hostStatus, recieveData, connectError) => {
+    const peer = CustomPeer(setId, error, connectError)
 
     //Reject incomming connections
     peer.on('connection', conn => {

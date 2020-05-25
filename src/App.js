@@ -14,8 +14,25 @@ import FormLabel from '@material-ui/core/FormLabel';
 import Button from '@material-ui/core/Button';
 import BasicCard from './components/BasicCard.js';
 import Header from './components/Header.js';
+//import banner from './images/linkedin_banner_image_1.png'
 
-import banner from './images/linkedin_banner_image_1.png'
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+
+const theme = createMuiTheme({
+  palette: {
+    primary:{
+        main: '#1DB954',
+    },
+  },
+  status: {
+    danger: 'orange',
+  },
+  contrastThreshold: 3,
+    // Used by the functions below to shift a color's luminance by approximately
+    // two indexes within its tonal palette.
+    // E.g., shift from Red 500 to Red 300 or Red 700.
+tonalOffset: 0.2,
+});
 
 
 const App = () => {
@@ -43,61 +60,57 @@ const App = () => {
   if(!credentials.status)
       return (
         <>
-        <Header classes={classes}>
-          <Typography variant="h6" className={classes.title}>
-              Spotify Sync
-          </Typography>
-        </Header>
-        <img src={banner} alt="Banner" height="50" className={classes.banner} />
-        
-        <BasicCard classes={classes}>
-          <SpotifyLogin 
-              clientId={'eff635f26c1c4116bc9cecca8ea22d17'}
-              redirectUri={'https://felipetrost.github.io/spotifySyncPlayback/'}
-              scope={["streaming", "user-read-email", "user-read-private", "user-read-playback-state", "user-modify-playback-state"]}
-              onSuccess={onSuccess}
-              onFailure={onFailure}
-              buttonText={"Entrear con spotify"}
-          />
+          <Header classes={classes}>
+            <Typography variant="h6" className={classes.title}>
+                Spotify Sync
+            </Typography>
+          </Header>
 
-          <br/><br/>
+          <ThemeProvider theme={theme}>      
+            <BasicCard classes={classes}>
 
-          <FormControl component="fieldset" >
-            <Grow in={true}><FormLabel component="legend">Modalidad:</FormLabel></Grow>
+              <FormControl component="fieldset" >
+                <Grow in={true}><FormLabel component="legend" className={classes.green}>Modalidad:</FormLabel></Grow>
 
-            <Grow in={true}>
-              <RadioGroup aria-label="quiz" name="quiz" value={type} onChange={e => setType(e.target.value)}>
-                <FormControlLabel value="host" control={<Radio />} label="Host" />
-                <FormControlLabel value="user" control={<Radio />} label="User" />
-              </RadioGroup>
-            </Grow>
-          </FormControl>
+                <Grow in={true}>
+                  <RadioGroup aria-label="quiz" name="quiz" value={type} onChange={e => setType(e.target.value)}>
+                    <FormControlLabel value="host" control={<Radio />} label="Host" />
+                    <FormControlLabel value="user" control={<Radio />} label="User" />
+                  </RadioGroup>
+                </Grow>
+              </FormControl>
+              <br/><br/>
+              <SpotifyLogin 
+                  clientId={'eff635f26c1c4116bc9cecca8ea22d17'}
+                  redirectUri={'https://felipetrost.github.io/spotifySyncPlayback/'}
+                  scope={["streaming", "user-read-email", "user-read-private", "user-read-playback-state", "user-modify-playback-state"]}
+                  onSuccess={onSuccess}
+                  onFailure={onFailure}
+                  className={classes.tButton}
+                  buttonText={<Button color="primary" variant="outlined">Entrar con spotify</Button>}
+              />
 
-          {!credentials.status && <Typography></Typography> }
-        </BasicCard>
+              {!credentials.status && <Typography></Typography> }
+            </BasicCard>
+          </ThemeProvider>
         </>
       )
 
   else if(credentials.status){
     return (
       <>
-      <Header classes={classes}>
-            <Typography variant="h6" className={classes.title}>
-                {credentials.spotify.user.display_name}
-            </Typography>
-      </Header>
-      {type ==='host' ? 
-      <Host customSpotify={credentials.spotify} />:
-      <User customSpotify={credentials.spotify}/>
-      }
+        <Header classes={classes}>
+              <Typography variant="h6" className={classes.title}>
+                  {credentials.spotify.user.display_name}
+              </Typography>
+        </Header>
+        {type ==='host' ? 
+        <Host customSpotify={credentials.spotify} />:
+        <User customSpotify={credentials.spotify}/>
+        }
       </>
     )
-
   }
-
-  else
-      return "No se pudo"
-
 }
 
 export default App;

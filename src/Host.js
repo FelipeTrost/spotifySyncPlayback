@@ -8,7 +8,6 @@ import DnsIcon from '@material-ui/icons/Dns';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import Loading from './components/Loading.js';
 import BasicCard from './components/BasicCard.js';
-import Header from './components/Header.js';
 import useStyles from './styles/styles.js'
 
 const copyToClipboard = str => {
@@ -56,7 +55,7 @@ const Host = ({customSpotify})=> {
 
     
     if(errorBroker)
-    return <Alert severity="error">Server down, please contact the administrator (Trost xd) and try again later.</Alert>
+    return <Alert severity="error" className={classes.alert}>Server down, please contact the administrator (Trost xd) and try again later.</Alert>
 
     if(connection && userInfo.spotify)
     return (
@@ -68,8 +67,8 @@ const Host = ({customSpotify})=> {
             </Typography>
             <Typography>
                 {connection} 
-                <IconButton onClick={() => copyToClipboard(connection)}>
-                    <FileCopyIcon/>
+                <IconButton onClick={() => copyToClipboard(connection)} >
+                    <FileCopyIcon className={classes.white}/>
                 </IconButton>
             </Typography>
         </BasicCard>

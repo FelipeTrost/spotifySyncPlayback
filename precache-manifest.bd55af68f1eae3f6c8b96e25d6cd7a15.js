@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "deaeb41689b314a3abcc2e0eb5ba8fa5",
+    "revision": "6b165d43b04019edbcd5e44865e8d069",
     "url": "/spotifySyncPlayback/index.html"
   },
   {
@@ -12,8 +12,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/spotifySyncPlayback/static/js/2.1d0746e1.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "8bad2648e887414c68d5",
-    "url": "/spotifySyncPlayback/static/js/main.1e55fcb4.chunk.js"
+    "revision": "373cd42c4c5f54270b0c",
+    "url": "/spotifySyncPlayback/static/js/main.e11442aa.chunk.js"
   },
   {
     "revision": "d1c1f9ce0147c9ed19cf",

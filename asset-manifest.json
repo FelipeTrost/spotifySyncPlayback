@@ -1,19 +1,19 @@
 {
   "files": {
-    "main.js": "/spotifySyncPlayback/static/js/main.e11442aa.chunk.js",
-    "main.js.map": "/spotifySyncPlayback/static/js/main.e11442aa.chunk.js.map",
+    "main.js": "/spotifySyncPlayback/static/js/main.b18e3616.chunk.js",
+    "main.js.map": "/spotifySyncPlayback/static/js/main.b18e3616.chunk.js.map",
     "runtime-main.js": "/spotifySyncPlayback/static/js/runtime-main.282c3973.js",
     "runtime-main.js.map": "/spotifySyncPlayback/static/js/runtime-main.282c3973.js.map",
     "static/js/2.1d0746e1.chunk.js": "/spotifySyncPlayback/static/js/2.1d0746e1.chunk.js",
     "static/js/2.1d0746e1.chunk.js.map": "/spotifySyncPlayback/static/js/2.1d0746e1.chunk.js.map",
     "index.html": "/spotifySyncPlayback/index.html",
-    "precache-manifest.bd55af68f1eae3f6c8b96e25d6cd7a15.js": "/spotifySyncPlayback/precache-manifest.bd55af68f1eae3f6c8b96e25d6cd7a15.js",
+    "precache-manifest.12f045faad209ec1de68406c19bfee00.js": "/spotifySyncPlayback/precache-manifest.12f045faad209ec1de68406c19bfee00.js",
     "service-worker.js": "/spotifySyncPlayback/service-worker.js",
     "static/js/2.1d0746e1.chunk.js.LICENSE.txt": "/spotifySyncPlayback/static/js/2.1d0746e1.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.282c3973.js",
     "static/js/2.1d0746e1.chunk.js",
-    "static/js/main.e11442aa.chunk.js"
+    "static/js/main.b18e3616.chunk.js"
   ]
 }
